@@ -160,12 +160,20 @@ ENDIF()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/")
 
 # Check for all the required and optional dependencies
-INCLUDE(FindPythonLibs)
+
+# Python 2.x is required, but in Arch Linux, Python 3 is default. Therefore explicitly search for Python 2.7 libraries first.
+# If that fails, use the original INCLUDE call to find python.
+FIND_PACKAGE(PythonLibs 2.7)
 IF(PYTHONLIBS_FOUND)
-	MESSAGE(STATUS "Looking for Python libraries and headers: found")
+	MESSAGE(STATUS "Looking for Python 2.7 libraries and headers: found")
 ELSE()
-	MESSAGE(SEND_ERROR "Looking for Python libraries and headers: not found!")
-	MESSAGE(FATAL_ERROR "Please get them (www.python.org)")
+    INCLUDE(FindPythonLibs)
+    IF (PYTHONLIBS_FOUND)
+        MESSAGE(STATUS "Looking for Python libraries and headers: found")
+    ELSE()
+	    MESSAGE(SEND_ERROR "Looking for Python libraries and headers: not found!")
+	    MESSAGE(FATAL_ERROR "Please get them (www.python.org)")
+    ENDIF()
 ENDIF()
 
 INCLUDE(FindSDL)
